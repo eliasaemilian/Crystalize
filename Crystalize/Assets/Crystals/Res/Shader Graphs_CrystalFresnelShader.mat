@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Shader Graphs_CrystalFresnelShader
+  m_Shader: {fileID: -6465566751694194690, guid: 28e1f15839b9c0e43bc2a38d5f85aa10,
+    type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - Texture2D_5B29797C:
+        m_Texture: {fileID: 2800000, guid: 81b877294584c2e4da6922328c20df1a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - Vector1_560ABAC0: -0.05
+    - Vector1_8D3A7C7B: 0.45
+    - Vector1_D3813577: -0.37
+    - Vector1_E6665858: 0.46
+    m_Colors:
+    - Color_7D8D306F: {r: 0.23740657, g: 0.38864052, b: 0.9150943, a: 1}
+    - Color_9F917139: {r: 0.3066038, g: 1, b: 0.89448315, a: 1}

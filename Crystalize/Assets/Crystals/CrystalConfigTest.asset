@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a32594e2721995d4b875778e8c1c3196, type: 3}
+  m_Name: CrystalConfigTest
+  m_EditorClassIdentifier: 
+  Amount: 3
+  ClusterRadius: 8
+  Decrease: 0.6
+  MaxRotationAngle: 60
+  MinLength: 6
+  MaxLength: 12
+  MinSegments: 4
+  MaxSegments: 8
+  MinPointiness: 2
+  MaxPointiness: 5
+  MinRadius: 0.5
+  MaxRadius: 5
+  MinOffset: 5
+  MaxOffset: 20

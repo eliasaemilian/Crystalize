@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Mountain-puma
+  m_Controller: {fileID: 9100000, guid: 5e056cde2b4ab8344af6f59f54eff86f, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 9a67f469a898d6d47beed8192ded549e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 6a077d1c45474ec43b0204b61b78053b, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 3ef5fad595c37e640b6fd65ccf46c635, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: a309504a13d328741b39dcea9f4f4f61, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 23090f7477c864d48bce4959abdef22c, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: dd7f99b572a8ebd458a95c45e8427616, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: af740c8310979f449bf443a86155dad7, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 5cce52a7238c0444c98509a987196b18, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 70e74318a82b79f4f9f214fd80c12c55, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 9c685678f3452514e9fb5aa51925e928, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 578ccbe3195efe34485b2b0fe66330c7, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 444ce66152f93aa43ab01f337d0e0e7b, type: 2}

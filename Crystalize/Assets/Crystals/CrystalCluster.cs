@@ -178,6 +178,7 @@ public class CrystalCluster : MonoBehaviour
 
     }
 
+
     private bool GetPositionAndRadius(out Vector3 position, out float radius, int i)
     {
         float offsetMin = (Config.ClusterRadius / 100f) * runningConfig.MinOffset;

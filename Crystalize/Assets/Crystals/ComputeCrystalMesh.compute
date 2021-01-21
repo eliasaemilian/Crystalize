@@ -1,0 +1,128 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+//RWTexture2D<float4> Result;
+
+#define TAU 6.28318530718;
+#define PI 3.14159265359;
+
+//struct Config
+//{
+//    float Lifetime = 5;
+
+//    int Amount = 3;
+    
+//    int ClusterRadius = 8;
+//    float Decrease = .8;
+//    float MaxRotationAngle = 60;
+
+//    int MinLength = 4;
+//    int MaxLength = 12;
+
+//    int MinSegments = 4;
+//    int MaxSegments = 8;
+
+//    float MinPointiness = 2;
+//    float MaxPointiness = 5;
+
+//    float MinRadius = .5;
+//    float MaxRadius = 5;
+
+//    float MinOffset = 10;
+//    float MaxOffset = 30;
+//};
+
+struct Crystal
+{
+    float radius;
+    float length; // do random calcs on cpu
+    float segments; // do random calcs on cpu
+    float pointiness;
+   // float3 worldPos; 
+};
+
+Crystal c;
+
+  
+float3x3 XRotationMatrix( float sina, float cosa )
+{
+    return float3x3(
+                   1, 0, 0,
+                   0, cosa, -sina,
+                   0, sina, cosa );
+}
+
+float3 RotateAroundXInDegrees( float3 vertex, float degrees )
+{
+    float pi = PI;
+    float alpha = degrees * pi / 180.0;
+    //float alpha = degrees * 0.01745329251994329576923690768489;
+    float sina, cosa;
+    sincos( alpha, sina, cosa );
+    float2x2 m = float2x2( cosa, -sina, sina, cosa );
+    return mul( XRotationMatrix( sina, cosa ), vertex.xyz );
+    
+    float2 v = mul( m, vertex.yz );
+    return float3( vertex.x, v );
+       
+}
+
+float3 RotateAroundAxisInDegrees( float3 vertex, float degrees )
+{
+    float3 axis = float3( 1, 0, 0 );
+    float pi = PI;
+    float alpha = degrees * pi / 180.0;
+    float sina, cosa;
+    sincos( alpha, sina, cosa );
+    float oc = 1.0 - cosa;
+    float3 a = axis * sina;
+    float3x3 p = float3x3( axis.x * axis, axis.y * axis, axis.z * axis );
+    float3x3 q = float3x3( cosa, -a.z, a.y, a.z, cosa, -a.x, -a.y, a.x, cosa );
+    float3x3 m = p * oc + q;
+    return mul( m, vertex );
+}
+
+RWStructuredBuffer<float3> VerticesBuffer;
+RWStructuredBuffer<float2> UvsBuffer;
+RWStructuredBuffer<float3> IndicesBuffer;
+
+RWStructuredBuffer<Crystal> CrystalInfoBuffer;
+
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // compute vertices
+    c = CrystalInfoBuffer[id.x];
+
+    for ( int i = 0; i < c.length; i++ )
+    {
+       
+        for ( int j = 0; j < c.segments; j++ )
+        {
+            float3 vertPos = float3( 0, 0, 0 );
+            float t = 1 - ( j / c.segments );
+            float angRad = t * TAU;
+            float2 dir = float2( cos( angRad ), sin( angRad ) );
+
+            vertPos.xy = dir * c.radius;
+
+          //  vertPos = RotateAroundXInDegrees( vertPos, 90.0 );
+            vertPos = RotateAroundAxisInDegrees( vertPos, 90.0 );
+      //      vertPos.y += i;
+            
+            VerticesBuffer[id.x + 0] = vertPos;
+            VerticesBuffer[id.x + 1] = float3( t.xx, 3 );
+            
+            float v = vertPos.y / ( c.length + c.pointiness );
+            float u = j / c.segments;
+            
+            UvsBuffer[id.x + 0] = float2( u, v );
+            UvsBuffer[id.x + 1] = float2( u, v );
+        }
+    }
+
+      //  Result[id.xy] = float4( id.x & id.y, ( id.x & 15 ) / 15.0, ( id.y & 15 ) / 15.0, 0.0 );
+}

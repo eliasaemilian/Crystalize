@@ -40,18 +40,20 @@ struct Crystal
     float length; // do random calcs on cpu
     float segments; // do random calcs on cpu
     float pointiness;
-   // float3 worldPos; 
+    float3 wPos; 
 };
 
 Crystal c;
 
   
+
 float3x3 XRotationMatrix( float sina, float cosa )
 {
     return float3x3(
                    1, 0, 0,
                    0, cosa, -sina,
-                   0, sina, cosa );
+                   0, sina, cosa 
+                   );
 }
 
 float3 RotateAroundXInDegrees( float3 vertex, float degrees )
@@ -61,60 +63,51 @@ float3 RotateAroundXInDegrees( float3 vertex, float degrees )
     //float alpha = degrees * 0.01745329251994329576923690768489;
     float sina, cosa;
     sincos( alpha, sina, cosa );
-    float2x2 m = float2x2( cosa, -sina, sina, cosa );
-    return mul( XRotationMatrix( sina, cosa ), vertex.xyz );
-    
-    float2 v = mul( m, vertex.yz );
-    return float3( vertex.x, v );
-       
+    return mul( XRotationMatrix( sina, cosa ), vertex.xzy ); // FLIPPED YOU DUMB FUCK BECAUSE Z IS Y FOR GPU !!!!!!!   
 }
 
-float3 RotateAroundAxisInDegrees( float3 vertex, float degrees )
-{
-    float3 axis = float3( 1, 0, 0 );
-    float pi = PI;
-    float alpha = degrees * pi / 180.0;
-    float sina, cosa;
-    sincos( alpha, sina, cosa );
-    float oc = 1.0 - cosa;
-    float3 a = axis * sina;
-    float3x3 p = float3x3( axis.x * axis, axis.y * axis, axis.z * axis );
-    float3x3 q = float3x3( cosa, -a.z, a.y, a.z, cosa, -a.x, -a.y, a.x, cosa );
-    float3x3 m = p * oc + q;
-    return mul( m, vertex );
-}
 
 RWStructuredBuffer<float3> VerticesBuffer;
 RWStructuredBuffer<float2> UvsBuffer;
 RWStructuredBuffer<float3> IndicesBuffer;
 
-RWStructuredBuffer<Crystal> CrystalInfoBuffer;
+StructuredBuffer<Crystal> CrystalInfoBuffer;
 
 
-[numthreads(8,8,1)]
+[numthreads(1,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     // compute vertices
     c = CrystalInfoBuffer[id.x];
-
-    for ( int i = 0; i < c.length; i++ )
+    
+    for ( uint i = 0; i < ( uint ) c.length; i++ )
     {
-       
-        for ( int j = 0; j < c.segments; j++ )
+
+        for ( uint j = 0; j < ( uint ) c.segments; j++ )
         {
             float3 vertPos = float3( 0, 0, 0 );
-            float t = 1 - ( j / c.segments );
-            float angRad = t * TAU;
-            float2 dir = float2( cos( angRad ), sin( angRad ) );
 
-            vertPos.xy = dir * c.radius;
+            if ( i == ( uint ) c.length - 1 ) // top point for crystal (double row)
+            {
+                vertPos = c.wPos;
+                vertPos.y += i + c.pointiness;
+            }
+            else
+            {
+                float t = saturate( j / c.segments );
+                float angRad = t * TAU;
+                float2 dir = float2( cos( angRad ), sin( angRad ) );
 
-          //  vertPos = RotateAroundXInDegrees( vertPos, 90.0 );
-            vertPos = RotateAroundAxisInDegrees( vertPos, 90.0 );
-      //      vertPos.y += i;
+                vertPos.xz = dir * c.radius;
+                vertPos = RotateAroundXInDegrees( vertPos, 90.0 );
+
+                vertPos.y += i;
             
-            VerticesBuffer[id.x + 0] = vertPos;
-            VerticesBuffer[id.x + 1] = float3( t.xx, 3 );
+
+            }
+            
+            VerticesBuffer[( i * ( uint ) c.segments + j ) * 2 + 0] = vertPos;
+            VerticesBuffer[( i * ( uint ) c.segments + j ) * 2 + 1] = float3( i, j, 100000 );
             
             float v = vertPos.y / ( c.length + c.pointiness );
             float u = j / c.segments;

@@ -1,10 +1,20 @@
 Base path: 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data', plugins path 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data/PlaybackEngines'
 Cmd: initializeCompiler
 Cmd: compileComputeKernel
-  api=4 insize=2722 outsize=1031 ok=1
+  api=4 insize=4337 outsize=1351 ok=1
 Cmd: compileComputeKernel
-  api=4 insize=2697 outsize=1051 ok=1
+  api=4 insize=4417 outsize=1119 ok=1
 Cmd: compileComputeKernel
-  api=4 insize=2765 outsize=1123 ok=1
+  api=4 insize=4443 outsize=1087 ok=1
 Cmd: compileComputeKernel
-  api=4 insize=2784 outsize=1095 ok=1
+  api=4 insize=4463 outsize=1091 ok=1
+Cmd: compileComputeKernel
+  error: 2 plat 4 at ComputeCrystalMesh.compute(76): incorrect number of arguments to numeric-type constructor
+  error: 2 plat 4 at ComputeCrystalMesh.compute(76): undeclared identifier 'v'
+  api=4 insize=4650 outsize=0 ok=0
+Cmd: compileComputeKernel
+  api=4 insize=2897 outsize=1111 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2895 outsize=1283 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2889 outsize=1271 ok=1

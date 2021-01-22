@@ -1,8 +1,23 @@
 Base path: 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data', plugins path 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data/PlaybackEngines'
 Cmd: initializeCompiler
 Cmd: compileComputeKernel
-  api=4 insize=2704 outsize=1031 ok=1
+  api=4 insize=4359 outsize=983 ok=1
 Cmd: compileComputeKernel
-  api=4 insize=2853 outsize=1115 ok=1
+  api=4 insize=4410 outsize=1119 ok=1
 Cmd: compileComputeKernel
-  api=4 insize=3425 outsize=1175 ok=1
+  api=4 insize=4428 outsize=1119 ok=1
+Cmd: compileComputeKernel
+  error: 2 plat 4 at ComputeCrystalMesh.compute(75): undeclared identifier 'm'
+  api=4 insize=4648 outsize=0 ok=0
+Cmd: compileComputeKernel
+  api=4 insize=4652 outsize=1119 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2899 outsize=1119 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2817 outsize=1151 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2801 outsize=1151 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2802 outsize=1151 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2886 outsize=1263 ok=1

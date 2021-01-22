@@ -1,15 +1,22 @@
 Base path: 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data', plugins path 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data/PlaybackEngines'
 Cmd: initializeCompiler
 Cmd: compileComputeKernel
-  api=4 insize=2689 outsize=1067 ok=1
+  api=4 insize=4382 outsize=1195 ok=1
 Cmd: compileComputeKernel
-  api=4 insize=2689 outsize=1067 ok=1
+  api=4 insize=4450 outsize=1119 ok=1
 Cmd: compileComputeKernel
-  api=4 insize=2704 outsize=1031 ok=1
+  api=4 insize=4463 outsize=1091 ok=1
 Cmd: compileComputeKernel
-  api=4 insize=2706 outsize=1095 ok=1
+  api=4 insize=2821 outsize=1155 ok=1
 Cmd: compileComputeKernel
-  api=4 insize=2835 outsize=1119 ok=1
+  api=4 insize=2817 outsize=1151 ok=1
 Cmd: compileComputeKernel
-  error: 1 plat 4 at ComputeCrystalMesh.compute(74): comma expression used where a vector constructor may have been intended
-  api=4 insize=3419 outsize=1135 ok=1
+  api=4 insize=2872 outsize=1219 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2889 outsize=1239 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2895 outsize=1267 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2891 outsize=1239 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=3161 outsize=1427 ok=1

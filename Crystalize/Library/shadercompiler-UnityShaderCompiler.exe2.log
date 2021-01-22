@@ -1,9 +1,23 @@
 Base path: 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data', plugins path 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data/PlaybackEngines'
 Cmd: initializeCompiler
 Cmd: compileComputeKernel
-  error: 2 plat 4 at ComputeCrystalMesh.compute(95): variable 'vertPos' used without having been completely initialized
-  api=4 insize=2669 outsize=0 ok=0
+  error: 1 plat 4 at ComputeCrystalMesh.compute(130): implicit truncation of vector type
+  api=4 insize=4305 outsize=1295 ok=1
 Cmd: compileComputeKernel
-  api=4 insize=2786 outsize=1115 ok=1
+  error: 2 plat 4 at ComputeCrystalMesh.compute(91): syntax error: unexpected token '='
+  api=4 insize=4370 outsize=0 ok=0
 Cmd: compileComputeKernel
-  api=4 insize=2788 outsize=1119 ok=1
+  api=4 insize=4357 outsize=1115 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=4458 outsize=1139 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=4471 outsize=1103 ok=1
+Cmd: compileComputeKernel
+  error: 1 plat 4 at ComputeCrystalMesh.compute(85): signed/unsigned mismatch, unsigned assumed
+  api=4 insize=2798 outsize=1099 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2807 outsize=1099 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=2883 outsize=1219 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=3169 outsize=1311 ok=1

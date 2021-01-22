@@ -8,31 +8,6 @@
 #define TAU 6.28318530718;
 #define PI 3.14159265359;
 
-//struct Config
-//{
-//    float Lifetime = 5;
-
-//    int Amount = 3;
-    
-//    int ClusterRadius = 8;
-//    float Decrease = .8;
-//    float MaxRotationAngle = 60;
-
-//    int MinLength = 4;
-//    int MaxLength = 12;
-
-//    int MinSegments = 4;
-//    int MaxSegments = 8;
-
-//    float MinPointiness = 2;
-//    float MaxPointiness = 5;
-
-//    float MinRadius = .5;
-//    float MaxRadius = 5;
-
-//    float MinOffset = 10;
-//    float MaxOffset = 30;
-//};
 
 struct Crystal
 {
@@ -60,7 +35,6 @@ float3 RotateAroundXInDegrees( float3 vertex, float degrees )
 {
     float pi = PI;
     float alpha = degrees * pi / 180.0;
-    //float alpha = degrees * 0.01745329251994329576923690768489;
     float sina, cosa;
     sincos( alpha, sina, cosa );
     return mul( XRotationMatrix( sina, cosa ), vertex.xzy ); // FLIPPED YOU DUMB FUCK BECAUSE Z IS Y FOR GPU !!!!!!!   
@@ -69,7 +43,7 @@ float3 RotateAroundXInDegrees( float3 vertex, float degrees )
 
 RWStructuredBuffer<float3> VerticesBuffer;
 RWStructuredBuffer<float2> UvsBuffer;
-RWStructuredBuffer<float3> IndicesBuffer;
+RWStructuredBuffer<uint> IndicesBuffer;
 
 StructuredBuffer<Crystal> CrystalInfoBuffer;
 
@@ -77,12 +51,11 @@ StructuredBuffer<Crystal> CrystalInfoBuffer;
 [numthreads(1,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    // compute vertices
     c = CrystalInfoBuffer[id.x];
     
+    // compute vertices
     for ( uint i = 0; i < ( uint ) c.length; i++ )
     {
-
         for ( uint j = 0; j < ( uint ) c.segments; j++ )
         {
             float3 vertPos = float3( 0, 0, 0 );
@@ -117,5 +90,37 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         }
     }
 
-      //  Result[id.xy] = float4( id.x & id.y, ( id.x & 15 ) / 15.0, ( id.y & 15 ) / 15.0, 0.0 );
+    // compute indices
+    for ( i = 0; i < ( uint ) c.length - 1; i++ )
+    {
+        for ( uint j = 0; j < ( ( uint ) c.segments * 2 ) - 2; j += 2 )
+        {
+            uint root = ( i * ( ( c.segments * 2 ) ) + j );
+            uint rootNext = ( i * ( ( c.segments * 2 ) ) ) + j + ( c.segments * 2 );
+
+            uint count = ( 6 * i ) + ( i * ( uint ) ( ( c.segments * 2 ) - 2 ) + j ) * 3;
+            
+            IndicesBuffer[count + 0] = rootNext;
+            IndicesBuffer[count + 1] = root + 2;
+            IndicesBuffer[count + 2] = root;
+            
+            IndicesBuffer[count + 3] = rootNext;
+            IndicesBuffer[count + 4] = rootNext + 2;
+            IndicesBuffer[count + 5] = root + 2;
+
+           
+        }
+
+        uint count = ( 6 * i ) + ( i * ( uint ) ( ( c.segments * 2 ) - 2 ) + ( ( c.segments * 2 ) - 2 ) ) * 3;
+        
+        IndicesBuffer[count + 0] = ( ( i + 1 ) * ( c.segments * 2 ) ) + ( c.segments * 2 ) - 2;
+        IndicesBuffer[count + 1] = ( i * ( c.segments * 2 ) ) + ( c.segments * 2 );
+        IndicesBuffer[count + 2] = ( i * ( c.segments * 2 ) );
+        
+        IndicesBuffer[count + 3] = ( ( i + 1 ) * ( c.segments * 2 ) ) + ( c.segments * 2 ) - 2;
+        IndicesBuffer[count + 4] = ( i * ( c.segments * 2 ) );
+        IndicesBuffer[count + 5] = ( i * ( c.segments * 2 ) ) + ( c.segments * 2 ) - 2;
+
+
+    }
 }

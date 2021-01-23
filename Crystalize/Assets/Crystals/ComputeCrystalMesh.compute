@@ -80,7 +80,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
             }
             
             VerticesBuffer[( i * ( uint ) c.segments + j ) * 2 + 0] = vertPos;
-            VerticesBuffer[( i * ( uint ) c.segments + j ) * 2 + 1] = float3( i, j, 100000 );
+            VerticesBuffer[( i * ( uint ) c.segments + j ) * 2 + 1] = vertPos;
             
             float v = vertPos.y / ( c.length + c.pointiness );
             float u = j / c.segments;

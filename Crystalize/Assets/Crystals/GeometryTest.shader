@@ -31,6 +31,7 @@
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
+                uint id: SV_VertexID;
             };
 
             struct v2f
@@ -56,6 +57,13 @@
               //  fixed4 color : COLOR;
             };
 
+            struct Debug
+            {
+                int i;
+                int count;
+                float3 vertex;
+            };
+
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float _VerticesCount;
@@ -63,11 +71,12 @@
             StructuredBuffer<float3> VerticesBuffer;
             StructuredBuffer<float2> UvsBuffer;
             StructuredBuffer<uint> IndicesBuffer;
+            RWStructuredBuffer<Debug> DebugBuffer;
 
             v2f vert (appdata v)
             {
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex = UnityObjectToClipPos(VerticesBuffer[IndicesBuffer[v.id]]);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
@@ -78,14 +87,19 @@
             {
                 g2f o;
                 //
-                for (uint i = 0; i < _VerticesCount; i++)
+                return;
+
+                for (uint i = 0; i < (uint)_VerticesCount; i++)
                 {
-                    uint count = 256 * InstanceID + i;
+                    uint count = ( 256 * InstanceID ) + i;
                     o.vertex = UnityObjectToClipPos( float4( VerticesBuffer[ IndicesBuffer[count]], 0 ) );
                     //o.color = fixed4( .5, .5, .0, 1 );
                   //  o.uv = Buffer[IndicesBuffer[count]];
                     tristream.Append( o );
 
+                    DebugBuffer[count].vertex = o.vertex;
+                    DebugBuffer[count].i = i;
+                    DebugBuffer[count].count = count;
 
                 }
 

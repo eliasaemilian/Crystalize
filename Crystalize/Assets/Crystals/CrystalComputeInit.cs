@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class CrystalComputeInit : MonoBehaviour
 {
@@ -31,10 +32,14 @@ public class CrystalComputeInit : MonoBehaviour
     public List<Vector3> ComputeVertices;
     public List<Vector3> GeneratedVertices;
 
+    Camera cam;
+
     // Start is called before the first frame update
     void Start()
     {
+        cam = Camera.main;
         computeCrystal();
+        
     }
 
     // Update is called once per frame
@@ -89,6 +94,8 @@ public class CrystalComputeInit : MonoBehaviour
         crystalInfoBuffer = new ComputeBuffer( 1, sizeof( float ) * 4 + sizeof (float) * 3, ComputeBufferType.Default );
         indicesBuffer = new ComputeBuffer( indicesCount, sizeof( uint ), ComputeBufferType.Default );
 
+     //   GraphicsBuffer debugBuffer = new GraphicsBuffer()
+
         // Set Mesh Config Data
         crystalInfoBuffer.SetData( data );
         crystalInfoBuffer.SetCounterValue( 1 );
@@ -101,17 +108,14 @@ public class CrystalComputeInit : MonoBehaviour
         shader.SetBuffer( kernelHandle, "IndicesBuffer", indicesBuffer );
 
 
-
-
         // DISPATCH
 
-        shader.Dispatch( kernelHandle, 1, 1, 1 );
+     //   shader.Dispatch( kernelHandle, 1, 1, 1 );
         // SET BUFFERS FOR GEO SHADER
         mat.SetBuffer( "VerticesBuffer", verticesBuffer );
         mat.SetBuffer( "IndicesBuffer", indicesBuffer );
         mat.SetBuffer( "UvsBuffer", uvsBuffer );
 
-        //Graphics.DrawProcedural( mat, mesh.bounds, MeshTopology.Points, 128);
 
 
         Vector3[] vertOut = new Vector3[verticesNum];
@@ -125,19 +129,35 @@ public class CrystalComputeInit : MonoBehaviour
 
         ComputeVertices.AddRange( vertOut );
 
+        Vector4[] vert = new Vector4[vertOut.Length];
+        for ( int i = 0; i < vertOut.Length; i++ ) vert[i] = new Vector4( vertOut[i].x, vertOut[i].y, vertOut[i].z, 0 );
 
+
+        MaterialPropertyBlock matProps = new MaterialPropertyBlock();
+        matProps.SetVectorArray( "Vert", vert );
+        matProps.SetBuffer( "VerticesBuffer", verticesBuffer );
+        matProps.SetBuffer( "IndicesBuffer", indicesBuffer );
+
+        CommandBuffer cmd = new CommandBuffer();
+        cmd.DispatchCompute( shader, kernelHandle, 1, 1, 1 );
         
+        cam.AddCommandBuffer( CameraEvent.AfterForwardOpaque, cmd );
+        cmd.DrawProcedural( Matrix4x4.identity, mat, -1, MeshTopology.Triangles, verticesNum, 1, matProps );
+
 
         List<Vector3> normals = new List<Vector3>();
 
         // Set Mesh
-        Vector3[] verts = new Vector3[6];
+        Vector3[] verts = new Vector3[verticesNum];
         int[] indis = new int[3];
-        mesh.SetVertices( vertOut );
-        mesh.SetTriangles( indisOut, 0 );
+        mesh.SetVertices( verts );
+        mesh.SetTriangles( indis, 0 );
+  //      mesh.SetIndices( indis, MeshTopology.Triangles, 0 );
         //  mesh.SetNormals(normals);
         //   mesh.SetUVs( 0, uvsOut );
         //mesh.RecalculateNormals();
+     //   Graphics.DrawProcedural( mat, mesh.bounds, MeshTopology.Triangles, verticesNum );
+
 
         crystal.GetComponent<MeshFilter>().mesh = mesh;
         //  crystal.GetComponent<MeshRenderer>().material = new Material( GetComponent<MeshRenderer>().material );

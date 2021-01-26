@@ -19,6 +19,7 @@ struct Crystal
 };
 
 Crystal c;
+float _VertCount;
 
   
 
@@ -44,14 +45,18 @@ float3 RotateAroundXInDegrees( float3 vertex, float degrees )
 RWStructuredBuffer<float3> VerticesBuffer;
 RWStructuredBuffer<float2> UvsBuffer;
 RWStructuredBuffer<uint> IndicesBuffer;
+RWStructuredBuffer<float3> ComputeOutputBuffer;
 
 StructuredBuffer<Crystal> CrystalInfoBuffer;
 
 
 [numthreads(1,1,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
 {
     c = CrystalInfoBuffer[id.x];
+    
+    if ( index > ( uint ) _VertCount )
+        return;
     
     // compute vertices
     for ( uint i = 0; i < ( uint ) c.length; i++ )
@@ -122,5 +127,17 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         IndicesBuffer[count + 5] = ( i * ( c.segments * 2 ) ) + ( c.segments * 2 ) - 2;
 
 
+        
+        
+
+
     }
+    
+     // Set to Output Buffer
+    for ( uint k = 0; k < ( uint ) _VertCount; ++k )
+    {
+        ComputeOutputBuffer[k] = VerticesBuffer[IndicesBuffer[k]];
+    }
+
+    
 }

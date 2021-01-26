@@ -479,8 +479,8 @@ MonoBehaviour:
   - Tag: Crystal
     Prefab: {fileID: 1596447378445182901, guid: bebdccf6ee9248f47a473c2901964af7,
       type: 3}
-    NumberOfObjects: 100
-    Uniqueness: 0.6
+    NumberOfObjects: 2000
+    Uniqueness: 0
   - Tag: BridgeCrystal
     Prefab: {fileID: 1596447378445182901, guid: 4d77c0023c5c299439582c8174b42296,
       type: 3}

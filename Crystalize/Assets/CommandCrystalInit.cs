@@ -15,12 +15,12 @@ public class CommandCrystalInit : MonoBehaviour
     float radius = 5f;
 
 
-    public struct Point
+    public struct Vert
     {
-        public Vector3 vertex;
-        public Vector3 normal;
-        public Vector4 tangent;
+        public Vector3 pos;
         public Vector2 uv;
+        public Vector3 normal;
+      //  public Vector4 tangent;
     }
 
     struct Crystal
@@ -29,33 +29,24 @@ public class CommandCrystalInit : MonoBehaviour
         public float length; // do random calcs on cpu
         public float segments; // do random calcs on cpu
         public float pointiness;
-        public Vector3 wPos;
     };
 
     public Material _mat;
     public CameraEvent _cameraEvent;
     private Dictionary<Camera, CommandBuffer> _cams = new Dictionary<Camera, CommandBuffer>();
 
-    private ComputeBuffer computebuffer;
 
     ComputeBuffer verticesBuffer;
     ComputeBuffer uvsBuffer;
     ComputeBuffer indicesBuffer;
     ComputeBuffer crystalInfoBuffer;
-    ComputeBuffer computeOutputBuffer;
+    ComputeBuffer vertOutputBuffer;
+    ComputeBuffer computebuffer;
 
     // Start is called before the first frame update
     void Start()
     {
-
-
-        GenerateCrystal();
-
-
-        // Instantiate Compute Buffer
-      //  computebuffer = new ComputeBuffer( n, Marshal.SizeOf( typeof( Point ) ), ComputeBufferType.Default );
-      //  computebuffer.SetData( points );
-     //   _mat.SetBuffer( "points", computebuffer );
+        GenerateCrystal( radius );
     }
 
     public void OnDisable()
@@ -64,7 +55,7 @@ public class CommandCrystalInit : MonoBehaviour
         if ( uvsBuffer != null ) uvsBuffer.Dispose();
         if ( indicesBuffer != null ) indicesBuffer.Dispose();
         if ( crystalInfoBuffer != null ) crystalInfoBuffer.Dispose();
-        if ( computeOutputBuffer != null ) computeOutputBuffer.Dispose();
+        if ( vertOutputBuffer != null ) vertOutputBuffer.Dispose();
 
         foreach ( var camera in _cams )
         {
@@ -74,11 +65,9 @@ public class CommandCrystalInit : MonoBehaviour
         _cams.Clear();
     }
 
-    void OnRenderObject()
+    private void OnRenderObject()
     {
-        // _mat.SetPass( 0 );
-        //  Graphics.DrawProceduralNow( MeshTopology.Triangles, indicesCount, 1 );
-      
+        //
     }
 
     private void OnWillRenderObject()
@@ -100,7 +89,6 @@ public class CommandCrystalInit : MonoBehaviour
         if ( _cams.ContainsKey( cam ) ) return;
 
 
-
         cmd = new CommandBuffer();
         cmd.name = "Buffer Test";
         _mat.SetPass( 0 );
@@ -111,8 +99,6 @@ public class CommandCrystalInit : MonoBehaviour
 
         cam.AddCommandBuffer( _cameraEvent, cmd );
 
-        // Execute Render Commands
-
 
     }
 
@@ -121,10 +107,10 @@ public class CommandCrystalInit : MonoBehaviour
         if ( computebuffer != null ) computebuffer.Release();
     }
 
-    void GenerateCrystal()
+
+    void GenerateCrystal(float radius)
     {
         // Setup Params for Crystal Gen
-
         int length = Random.Range( runningConfig.MinLength, runningConfig.MaxLength + 1 );
         int segments = Random.Range( runningConfig.MinSegments, runningConfig.MaxSegments );
         float pointiness = Random.Range( runningConfig.MinPointiness, runningConfig.MaxPointiness );
@@ -132,14 +118,12 @@ public class CommandCrystalInit : MonoBehaviour
         verticesNum = length * segments * 2;
         indicesCount = ( 6 * ( length - 1 ) ) + ( ( length - 1 ) ) * ( 3 * ( ( segments * 2 ) - 2 ) );
 
-        // Command Shader
-
+        // Testcrystal
         Crystal testCrystal = new Crystal();
         testCrystal.radius = radius;
         testCrystal.length = length;
         testCrystal.pointiness = pointiness;
         testCrystal.segments = segments;
-        testCrystal.wPos = transform.position;
 
         Crystal[] data = new Crystal[1];
         data[0] = testCrystal;
@@ -147,9 +131,9 @@ public class CommandCrystalInit : MonoBehaviour
         // INIT BUFFERS
         verticesBuffer = new ComputeBuffer( verticesNum, sizeof( float ) * 3, ComputeBufferType.Default );
         uvsBuffer = new ComputeBuffer( verticesNum, sizeof( float ) * 2, ComputeBufferType.Default );
-        crystalInfoBuffer = new ComputeBuffer( 1, sizeof( float ) * 4 + sizeof( float ) * 3, ComputeBufferType.Default );
+        crystalInfoBuffer = new ComputeBuffer( 1, Marshal.SizeOf( typeof( Crystal ) ), ComputeBufferType.Default );
         indicesBuffer = new ComputeBuffer( indicesCount, sizeof( uint ), ComputeBufferType.Default );
-        computeOutputBuffer = new ComputeBuffer( indicesCount, sizeof( float ) * 3, ComputeBufferType.Default );
+        vertOutputBuffer = new ComputeBuffer( indicesCount, Marshal.SizeOf( typeof( Vert ) ), ComputeBufferType.Default );
 
         // Set Mesh Config Data
         crystalInfoBuffer.SetData( data );
@@ -161,16 +145,14 @@ public class CommandCrystalInit : MonoBehaviour
         shader.SetBuffer( kernelHandle, "UvsBuffer", uvsBuffer );
         shader.SetBuffer( kernelHandle, "CrystalInfoBuffer", crystalInfoBuffer );
         shader.SetBuffer( kernelHandle, "IndicesBuffer", indicesBuffer );
-        shader.SetBuffer( kernelHandle, "ComputeOutputBuffer", computeOutputBuffer );
+        shader.SetBuffer( kernelHandle, "VertOutputBuffer", vertOutputBuffer );
         shader.SetFloat( "_VertCount", indicesCount );
 
         // DISPATCH
         shader.Dispatch( kernelHandle, 1, 1, 1 );
 
-        _mat.SetBuffer( "vertexBuffer", computeOutputBuffer );
-
-
-
+        // Set Mat Shader Vars
+        _mat.SetBuffer( "vertBuffer", vertOutputBuffer );
 
 
     }

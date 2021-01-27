@@ -1,9 +1,6 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-//RWTexture2D<float4> Result;
 
 #define TAU 6.28318530718;
 #define PI 3.14159265359;
@@ -16,6 +13,13 @@ struct Crystal
     float segments; // do random calcs on cpu
     float pointiness;
     float3 wPos; 
+};
+
+struct Vert
+{
+    float3 pos;
+    float2 uv;
+    float3 normal;
 };
 
 Crystal c;
@@ -45,7 +49,7 @@ float3 RotateAroundXInDegrees( float3 vertex, float degrees )
 RWStructuredBuffer<float3> VerticesBuffer;
 RWStructuredBuffer<float2> UvsBuffer;
 RWStructuredBuffer<uint> IndicesBuffer;
-RWStructuredBuffer<float3> ComputeOutputBuffer;
+RWStructuredBuffer<Vert> VertOutputBuffer;
 
 StructuredBuffer<Crystal> CrystalInfoBuffer;
 
@@ -54,6 +58,8 @@ StructuredBuffer<Crystal> CrystalInfoBuffer;
 void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
 {
     c = CrystalInfoBuffer[id.x];
+    
+    
     
     if ( index > ( uint ) _VertCount )
         return;
@@ -67,7 +73,7 @@ void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
 
             if ( i == ( uint ) c.length - 1 ) // top point for crystal (double row)
             {
-                vertPos = c.wPos;
+                vertPos = float3( 0, 0, 0 );
                 vertPos.y += i + c.pointiness;
             }
             else
@@ -78,20 +84,19 @@ void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
 
                 vertPos.xz = dir * c.radius;
                 vertPos = RotateAroundXInDegrees( vertPos, 90.0 );
-
-                vertPos.y += i;
-            
-
+                vertPos.y += i;          
             }
             
-            VerticesBuffer[( i * ( uint ) c.segments + j ) * 2 + 0] = vertPos;
-            VerticesBuffer[( i * ( uint ) c.segments + j ) * 2 + 1] = vertPos;
+            uint count = ( i * ( uint ) c.segments + j ) * 2;
+            
+            VerticesBuffer[count + 0] = vertPos;
+            VerticesBuffer[count + 1] = vertPos;
             
             float v = vertPos.y / ( c.length + c.pointiness );
             float u = j / c.segments;
             
-            UvsBuffer[id.x + 0] = float2( u, v );
-            UvsBuffer[id.x + 1] = float2( u, v );
+            UvsBuffer[count + 0] = float2( u, v );
+            UvsBuffer[count + 1] = float2( u, v );
         }
     }
 
@@ -111,9 +116,7 @@ void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
             
             IndicesBuffer[count + 3] = rootNext;
             IndicesBuffer[count + 4] = rootNext + 2;
-            IndicesBuffer[count + 5] = root + 2;
-
-           
+            IndicesBuffer[count + 5] = root + 2;          
         }
 
         uint count = ( 6 * i ) + ( i * ( uint ) ( ( c.segments * 2 ) - 2 ) + ( ( c.segments * 2 ) - 2 ) ) * 3;
@@ -125,18 +128,13 @@ void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
         IndicesBuffer[count + 3] = ( ( i + 1 ) * ( c.segments * 2 ) ) + ( c.segments * 2 ) - 2;
         IndicesBuffer[count + 4] = ( i * ( c.segments * 2 ) );
         IndicesBuffer[count + 5] = ( i * ( c.segments * 2 ) ) + ( c.segments * 2 ) - 2;
-
-
-        
-        
-
-
     }
     
      // Set to Output Buffer
     for ( uint k = 0; k < ( uint ) _VertCount; ++k )
     {
-        ComputeOutputBuffer[k] = VerticesBuffer[IndicesBuffer[k]];
+        VertOutputBuffer[k].pos = VerticesBuffer[IndicesBuffer[k]];
+        VertOutputBuffer[k].uv = UvsBuffer[IndicesBuffer[k]];
     }
 
     

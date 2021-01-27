@@ -76,12 +76,7 @@ public class CommandCrystalInit : MonoBehaviour
         _cams.Clear();
     }
 
-    void OnRenderObject()
-    {
-        // _mat.SetPass( 0 );
-        //  Graphics.DrawProceduralNow( MeshTopology.Triangles, indicesCount, 1 );
-      
-    }
+
 
     private void OnWillRenderObject()
     {
@@ -100,8 +95,6 @@ public class CommandCrystalInit : MonoBehaviour
 
         // if cmd buffer is already registered on camera, return
         if ( _cams.ContainsKey( cam ) ) return;
-
-
 
         cmd = new CommandBuffer();
         cmd.name = "Buffer Test";

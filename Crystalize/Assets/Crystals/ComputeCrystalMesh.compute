@@ -52,7 +52,7 @@ float3 RotateAroundXInDegrees( float3 vertex, float degrees )
 RWStructuredBuffer<float3> VerticesBuffer;
 RWStructuredBuffer<float2> UvsBuffer;
 RWStructuredBuffer<uint> IndicesBuffer;
-RWStructuredBuffer<float3> ComputeOutputBuffer;
+//RWStructuredBuffer<float3> ComputeOutputBuffer;
 RWStructuredBuffer<Vert> VertOutputBuffer;
 
 
@@ -145,7 +145,7 @@ void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
      // Set to Output Buffer
     for ( uint k = 0; k < ( uint ) _VertCount; ++k )
     {
-        ComputeOutputBuffer[k] = VerticesBuffer[IndicesBuffer[k]];
+       // ComputeOutputBuffer[k] = VerticesBuffer[IndicesBuffer[k]];
         VertOutputBuffer[k].pos = VerticesBuffer[IndicesBuffer[k]];
         VertOutputBuffer[k].uv = UvsBuffer[IndicesBuffer[k]];
 

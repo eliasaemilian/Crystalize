@@ -23,6 +23,14 @@ public class CommandCrystalInit : MonoBehaviour
         public Vector2 uv;
     }
 
+    public struct Vert
+    {
+        public Vector3 pos;
+        public Vector2 uv;
+        public Vector3 normal;
+        //  public Vector4 tangent;
+    }
+
     struct Crystal
     {
         public float radius;
@@ -43,6 +51,7 @@ public class CommandCrystalInit : MonoBehaviour
     ComputeBuffer indicesBuffer;
     ComputeBuffer crystalInfoBuffer;
     ComputeBuffer computeOutputBuffer;
+    ComputeBuffer vertOutputBuffer;
 
     // Start is called before the first frame update
     void Start()
@@ -65,6 +74,8 @@ public class CommandCrystalInit : MonoBehaviour
         if ( indicesBuffer != null ) indicesBuffer.Dispose();
         if ( crystalInfoBuffer != null ) crystalInfoBuffer.Dispose();
         if ( computeOutputBuffer != null ) computeOutputBuffer.Dispose();
+        if ( vertOutputBuffer != null ) vertOutputBuffer.Dispose();
+
 
         foreach ( var camera in _cams )
         {
@@ -150,6 +161,7 @@ public class CommandCrystalInit : MonoBehaviour
         crystalInfoBuffer = new ComputeBuffer( 1, sizeof( float ) * 4 + sizeof( float ) * 3, ComputeBufferType.Default );
         indicesBuffer = new ComputeBuffer( indicesCount, sizeof( uint ), ComputeBufferType.Default );
         computeOutputBuffer = new ComputeBuffer( indicesCount, sizeof( float ) * 3, ComputeBufferType.Default );
+        vertOutputBuffer = new ComputeBuffer( indicesCount, Marshal.SizeOf(typeof (Vert)), ComputeBufferType.Default );
 
         // Set Mesh Config Data
         crystalInfoBuffer.SetData( data );
@@ -162,12 +174,14 @@ public class CommandCrystalInit : MonoBehaviour
         shader.SetBuffer( kernelHandle, "CrystalInfoBuffer", crystalInfoBuffer );
         shader.SetBuffer( kernelHandle, "IndicesBuffer", indicesBuffer );
         shader.SetBuffer( kernelHandle, "ComputeOutputBuffer", computeOutputBuffer );
+        shader.SetBuffer( kernelHandle, "VertOutputBuffer", vertOutputBuffer );
         shader.SetFloat( "_VertCount", indicesCount );
 
         // DISPATCH
         shader.Dispatch( kernelHandle, 1, 1, 1 );
 
         _mat.SetBuffer( "vertexBuffer", computeOutputBuffer );
+        _mat.SetBuffer( "vertBuffer", vertOutputBuffer );
 
 
 

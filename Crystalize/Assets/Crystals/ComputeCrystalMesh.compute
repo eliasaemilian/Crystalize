@@ -18,6 +18,13 @@ struct Crystal
     float3 wPos; 
 };
 
+struct Vert
+{
+    float3 pos;
+    float2 uv;
+    float3 normal;
+};
+
 Crystal c;
 float _VertCount;
 
@@ -46,6 +53,8 @@ RWStructuredBuffer<float3> VerticesBuffer;
 RWStructuredBuffer<float2> UvsBuffer;
 RWStructuredBuffer<uint> IndicesBuffer;
 RWStructuredBuffer<float3> ComputeOutputBuffer;
+RWStructuredBuffer<Vert> VertOutputBuffer;
+
 
 StructuredBuffer<Crystal> CrystalInfoBuffer;
 
@@ -90,8 +99,8 @@ void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
             float v = vertPos.y / ( c.length + c.pointiness );
             float u = j / c.segments;
             
-            UvsBuffer[id.x + 0] = float2( u, v );
-            UvsBuffer[id.x + 1] = float2( u, v );
+            UvsBuffer[( i * ( uint ) c.segments + j ) * 2 + 0] = float2( u, v );
+            UvsBuffer[( i * ( uint ) c.segments + j ) * 2 + 1] = float2( u, v );
         }
     }
 
@@ -137,6 +146,9 @@ void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
     for ( uint k = 0; k < ( uint ) _VertCount; ++k )
     {
         ComputeOutputBuffer[k] = VerticesBuffer[IndicesBuffer[k]];
+        VertOutputBuffer[k].pos = VerticesBuffer[IndicesBuffer[k]];
+        VertOutputBuffer[k].uv = UvsBuffer[IndicesBuffer[k]];
+
     }
 
     

@@ -1,0 +1,171 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+
+#define TAU 6.28318530718;
+#define PI 3.14159265359;
+
+
+struct Crystal
+{
+    float radius;
+    float length; // do random calcs on cpu
+    float segments; // do random calcs on cpu
+    float pointiness;
+    float3 offset; 
+    int verticesCount;
+    int indicesCount;
+};
+
+struct Vert
+{
+    float3 pos;
+    float2 uv;
+    float3 normal;
+};
+
+//Crystal c;
+float _VertCount;
+ 
+
+float3x3 XRotationMatrix( float sina, float cosa )
+{
+    return float3x3(
+                   1, 0, 0,
+                   0, cosa, -sina,
+                   0, sina, cosa 
+                   );
+}
+
+float3 RotateAroundXInDegrees( float3 vertex, float degrees )
+{
+    float pi = PI;
+    float alpha = degrees * pi / 180.0;
+    float sina, cosa;
+    sincos( alpha, sina, cosa );
+    return mul( XRotationMatrix( sina, cosa ), vertex.xzy ); // FLIPPED YOU DUMB FUCK BECAUSE Z IS Y FOR GPU !!!!!!!   
+}
+
+
+RWStructuredBuffer<float3> VerticesBuffer;
+RWStructuredBuffer<float2> UvsBuffer;
+RWStructuredBuffer<uint> IndicesBuffer;
+RWStructuredBuffer<Vert> VertOutputBuffer;
+
+
+StructuredBuffer<Crystal> CrystalInfoBuffer;
+
+void GenerateCrystal(Crystal c, int offsetCount, int offsetVerts)
+{
+    // compute vertices
+    for ( uint i = 0; i < ( uint ) c.length; i++ )
+    {
+        for ( uint j = 0; j < ( uint ) c.segments; j++ )
+        {
+            float3 vertPos = float3( 0, 0, 0 );
+
+            if ( i == ( uint ) c.length - 1 ) // top point for crystal (double row)
+            {
+                vertPos = float3( 0, 0, 0 );
+                vertPos.y += i + c.pointiness;
+            }
+            else
+            {
+                float t = saturate( j / c.segments );
+                float angRad = t * TAU;
+                float2 dir = float2( cos( angRad ), sin( angRad ) );
+
+                vertPos.xz = dir * c.radius;
+                vertPos = RotateAroundXInDegrees( vertPos, 90.0 );
+
+                vertPos.y += i;
+            
+            }
+            
+            VerticesBuffer[offsetVerts + ( ( i * ( uint ) c.segments + j ) * 2 ) + 0] = c.offset + vertPos;
+            VerticesBuffer[offsetVerts + ( ( i * ( uint ) c.segments + j ) * 2 ) + 1] = c. offset + vertPos;
+
+            
+            
+            float v = vertPos.y / ( c.length + c.pointiness );
+            float u = j / c.segments;
+            
+            UvsBuffer[offsetVerts + ( ( i * ( uint ) c.segments + j ) * 2 )  + 0] = float2( u, v );
+            UvsBuffer[offsetVerts + ( ( i * ( uint ) c.segments + j ) * 2 )  + 1] = float2( u, v );
+        }
+        
+    }
+
+    // compute indices
+    for ( i = 0; i < ( uint ) c.length - 1; i++ )
+    {
+        for ( uint j = 0; j < ( ( uint ) c.segments * 2 ) - 2; j += 2 )
+        {
+            uint root = offsetVerts + ( i * ( ( c.segments * 2 ) ) + j );
+            uint rootNext = offsetVerts + ( i * ( ( c.segments * 2 ) ) ) + j + ( c.segments * 2 );
+
+            uint count = offsetCount + ( ( 6 * i ) + ( i * ( uint ) ( ( c.segments * 2 ) - 2 ) + j ) * 3 );
+            
+            IndicesBuffer[count + 0] = rootNext;
+            IndicesBuffer[count + 1] = root + 2;
+            IndicesBuffer[count + 2] = root;
+            
+            IndicesBuffer[count + 3] = rootNext;
+            IndicesBuffer[count + 4] = rootNext + 2;
+            IndicesBuffer[count + 5] = root + 2;
+        }
+
+        uint count = offsetCount + ( 6 * i ) + ( i * ( uint ) ( ( c.segments * 2 ) - 2 ) + ( ( c.segments * 2 ) - 2 ) ) * 3;
+        
+        IndicesBuffer[count + 0] = offsetVerts + ( ( i + 1 ) * ( c.segments * 2 ) ) + ( c.segments * 2 ) - 2;
+        IndicesBuffer[count + 1] = offsetVerts + ( i * ( c.segments * 2 ) ) + ( c.segments * 2 );
+        IndicesBuffer[count + 2] = offsetVerts + ( i * ( c.segments * 2 ) );
+        
+        IndicesBuffer[count + 3] = offsetVerts + ( ( i + 1 ) * ( c.segments * 2 ) ) + ( c.segments * 2 ) - 2;
+        IndicesBuffer[count + 4] = offsetVerts + ( i * ( c.segments * 2 ) );
+        IndicesBuffer[count + 5] = offsetVerts + ( i * ( c.segments * 2 ) ) + ( c.segments * 2 ) - 2;
+              
+    }
+    
+    
+    // PUT TOGETHER HERE !!!!
+    
+}
+
+[numthreads(1,1,1)]
+void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
+{
+    //Crystal c = CrystalInfoBuffer[id.x];
+    
+    //if ( index > ( uint ) _VertCount )
+    //    return;
+    int offsetCount = 0;
+    int offsetVerts = 0;
+    uint crystalCount = 0;
+    uint stride = 0;
+    CrystalInfoBuffer.GetDimensions( crystalCount, stride);
+    // for like id.x < index generate crystal feed it id offset idk figure it out cunt <- bitch I did
+    for ( uint i = 0; i < crystalCount; ++i )
+    {
+        GenerateCrystal( CrystalInfoBuffer[i], offsetCount, offsetVerts);
+        
+        for ( uint k = ( uint ) offsetCount; k < offsetCount + ( uint ) CrystalInfoBuffer[i].indicesCount; ++k )
+        {
+            int idOffset = offsetCount;
+            VertOutputBuffer[k].pos = VerticesBuffer[IndicesBuffer[k]];
+            VertOutputBuffer[k].uv = UvsBuffer[IndicesBuffer[k]];
+        }
+
+        offsetCount += CrystalInfoBuffer[i].indicesCount;
+        offsetVerts += CrystalInfoBuffer[i].verticesCount;
+    }
+    
+
+
+    //for ( uint k = 0; k < ( uint ) _VertCount; ++k )
+    //{
+    //    int idOffset = id.x * _VertCount;
+    //    VertOutputBuffer[idOffset + k].pos = VerticesBuffer[IndicesBuffer[k]];
+    //    VertOutputBuffer[idOffset + k].uv = UvsBuffer[IndicesBuffer[k]];
+    //}
+}

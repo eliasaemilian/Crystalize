@@ -227,7 +227,7 @@ GameObject:
   - component: {fileID: 1490810635}
   - component: {fileID: 1490810637}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: CB Init
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -246,11 +246,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shader: {fileID: 7200000, guid: 6ac551eed6daf814987c248a405ff619, type: 3}
-  runningConfig: {fileID: 11400000, guid: e57602bf5f6154240b91b3aae88323a0, type: 2}
+  runningConfig: {fileID: 11400000, guid: a1595825afeb90f44a33f68407c9d292, type: 2}
   verticesNum: 0
   indicesCount: 0
   _mat: {fileID: 2100000, guid: a3f1def1224318d44aea74bd384adc06, type: 2}
   _cameraEvent: 15
+  Tests: []
+  OutputVert: []
 --- !u!4 &1490810636
 Transform:
   m_ObjectHideFlags: 0
@@ -259,7 +261,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1490810634}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 5.42, y: 0, z: 26.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

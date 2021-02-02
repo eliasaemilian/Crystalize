@@ -15,6 +15,8 @@ struct Crystal
     float3 offset; 
     int verticesCount;
     int indicesCount;
+    float3 debugCol;
+    float2 rot;
 };
 
 struct Vert
@@ -22,11 +24,15 @@ struct Vert
     float3 pos;
     float2 uv;
     float3 normal;
+    float3 debugCol;
 };
 
-//Crystal c;
-float _VertCount;
  
+void RandomRange( float2 Seed, float Min, float Max, out float Out )
+{
+    float randomno = frac( sin( dot( Seed, float2( 12.9898, 78.233 ) ) ) * 43758.5453 );
+    Out = lerp( Min, Max, randomno );
+}
 
 float3x3 XRotationMatrix( float sina, float cosa )
 {
@@ -37,14 +43,34 @@ float3x3 XRotationMatrix( float sina, float cosa )
                    );
 }
 
+float3x3 ZRotationMatrix( float sina, float cosa )
+{
+    return float3x3(
+                   cosa, -sina, 0,
+                   sina, cosa, 0,
+                   0, 0, 1
+                   );
+}
+
 float3 RotateAroundXInDegrees( float3 vertex, float degrees )
 {
     float pi = PI;
     float alpha = degrees * pi / 180.0;
     float sina, cosa;
     sincos( alpha, sina, cosa );
-    return mul( XRotationMatrix( sina, cosa ), vertex.xzy ); // FLIPPED YOU DUMB FUCK BECAUSE Z IS Y FOR GPU !!!!!!!   
+    return mul( XRotationMatrix( sina, cosa ), vertex.xyz ); 
 }
+
+float3 RotateAroundZInDegrees( float3 vertex, float degrees )
+{
+    float pi = PI;
+    float alpha = degrees * pi / 180.0;
+    float sina, cosa;
+    sincos( alpha, sina, cosa );
+    return mul( ZRotationMatrix( sina, cosa ), vertex.xyz );
+}
+
+
 
 
 RWStructuredBuffer<float3> VerticesBuffer;
@@ -64,7 +90,7 @@ void GenerateCrystal(Crystal c, int offsetCount, int offsetVerts)
         {
             float3 vertPos = float3( 0, 0, 0 );
 
-            if ( i == ( uint ) c.length - 1 ) // top point for crystal (double row)
+            if ( i == ( uint ) c.length - 1 ) // TODO: get rid of branching
             {
                 vertPos = float3( 0, 0, 0 );
                 vertPos.y += i + c.pointiness;
@@ -76,16 +102,17 @@ void GenerateCrystal(Crystal c, int offsetCount, int offsetVerts)
                 float2 dir = float2( cos( angRad ), sin( angRad ) );
 
                 vertPos.xz = dir * c.radius;
-                vertPos = RotateAroundXInDegrees( vertPos, 90.0 );
-
                 vertPos.y += i;
             
             }
             
+            // apply rotation
+            vertPos = RotateAroundXInDegrees( vertPos, c.rot.x );
+            vertPos = RotateAroundZInDegrees( vertPos, c.rot.y );
+
+            // set buffers
             VerticesBuffer[offsetVerts + ( ( i * ( uint ) c.segments + j ) * 2 ) + 0] = c.offset + vertPos;
             VerticesBuffer[offsetVerts + ( ( i * ( uint ) c.segments + j ) * 2 ) + 1] = c. offset + vertPos;
-
-            
             
             float v = vertPos.y / ( c.length + c.pointiness );
             float u = j / c.segments;
@@ -132,6 +159,8 @@ void GenerateCrystal(Crystal c, int offsetCount, int offsetVerts)
     
 }
 
+
+
 [numthreads(1,1,1)]
 void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
 {
@@ -151,9 +180,9 @@ void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
         
         for ( uint k = ( uint ) offsetCount; k < offsetCount + ( uint ) CrystalInfoBuffer[i].indicesCount; ++k )
         {
-            int idOffset = offsetCount;
             VertOutputBuffer[k].pos = VerticesBuffer[IndicesBuffer[k]];
             VertOutputBuffer[k].uv = UvsBuffer[IndicesBuffer[k]];
+            VertOutputBuffer[k].debugCol = CrystalInfoBuffer[i].debugCol;
         }
 
         offsetCount += CrystalInfoBuffer[i].indicesCount;
@@ -161,11 +190,4 @@ void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
     }
     
 
-
-    //for ( uint k = 0; k < ( uint ) _VertCount; ++k )
-    //{
-    //    int idOffset = id.x * _VertCount;
-    //    VertOutputBuffer[idOffset + k].pos = VerticesBuffer[IndicesBuffer[k]];
-    //    VertOutputBuffer[idOffset + k].uv = UvsBuffer[IndicesBuffer[k]];
-    //}
 }

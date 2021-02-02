@@ -1,19 +1,4 @@
 Base path: 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data', plugins path 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data/PlaybackEngines'
 Cmd: initializeCompiler
 Cmd: compileComputeKernel
-  api=4 insize=5439 outsize=3592 ok=1
-Cmd: compileComputeKernel
-  error: 1 plat 4 at ComputeCrystalMesh.compute(142): loop only executes for 1 iteration(s), forcing loop to unroll
-  api=4 insize=5439 outsize=3420 ok=1
-Cmd: compileComputeKernel
-  api=4 insize=5418 outsize=3500 ok=1
-Cmd: compileComputeKernel
-  error: 2 plat 4 at ComputeCrystalMesh.compute(142): 'GetDimensions': no matching 2 parameter intrinsic method; Possible intrinsic methods are: StructuredBuffer<struct Crystal>.GetDimensions(out uint count, out uint stride)
-  api=4 insize=5615 outsize=0 ok=0
-Cmd: compileComputeKernel
-  error: 2 plat 4 at ComputeCrystalMesh.compute(61): array dimensions must be literal scalar expressions
-  api=4 insize=6173 outsize=0 ok=0
-Cmd: compileComputeKernel
-  api=4 insize=6067 outsize=3576 ok=1
-Cmd: compileComputeKernel
-  api=4 insize=5881 outsize=3728 ok=1
+  api=4 insize=5667 outsize=4064 ok=1

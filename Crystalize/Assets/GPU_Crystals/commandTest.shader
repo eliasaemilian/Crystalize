@@ -33,6 +33,7 @@
                 float3         pos;
                 float2         uv;
                 float3         normal;
+                float3         debugCol;
                 //   float4         tangent;
             };
 
@@ -44,6 +45,7 @@
                 float2 uv : TEXCOORD0;
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
+                float3 debugCol : TEXCOORD1;
             };
 
             sampler2D _MainTex;
@@ -56,6 +58,8 @@
                 o.vertex = UnityObjectToClipPos( float4( vertBuffer[id].pos, 1.0f ) );
                 o.uv = TRANSFORM_TEX( vertBuffer[id].uv, _MainTex );
 
+                o.debugCol = vertBuffer[id].debugCol;
+
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
@@ -66,7 +70,7 @@
                 fixed4 col = tex2D(_MainTex, i.uv);
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
-                col = float4( i.uv, 0, 1 ); // debug uvs
+                col = fixed4(i.debugCol, 1); // debug uvs
 
                 return col;
             }

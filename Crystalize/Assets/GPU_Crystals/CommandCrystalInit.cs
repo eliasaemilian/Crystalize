@@ -58,6 +58,9 @@ public class CommandCrystalInit : MonoBehaviour
     ComputeBuffer indicesBuffer;
     ComputeBuffer crystalInfoBuffer;
     ComputeBuffer vertOutputBuffer;
+    ComputeBuffer RLSPBuffer;
+    ComputeBuffer OffRotBuffer;
+    ComputeBuffer VICountBuffer;
 
 
     // Start is called before the first frame update
@@ -76,6 +79,9 @@ public class CommandCrystalInit : MonoBehaviour
         if ( indicesBuffer != null ) indicesBuffer.Dispose();
         if ( crystalInfoBuffer != null ) crystalInfoBuffer.Dispose();
         if ( vertOutputBuffer != null ) vertOutputBuffer.Dispose();
+        if ( RLSPBuffer != null ) RLSPBuffer.Dispose();
+        if ( OffRotBuffer != null ) OffRotBuffer.Dispose();
+        if ( VICountBuffer != null ) VICountBuffer.Dispose();
 
 
         foreach ( var camera in _cams )
@@ -129,7 +135,7 @@ public class CommandCrystalInit : MonoBehaviour
         float pointiness = Random.Range( runningConfig.MinPointiness, runningConfig.MaxPointiness );
 
         verticesNum = length * segments * 2;
-        indicesCount = ( 6 * ( length - 1 ) ) + ( ( length - 1 ) ) * ( 3 * ( ( segments * 2 ) - 2 ) );
+        indicesCount =( 6 * ( length - 1 ) ) + ( ( length - 1 ) ) * ( 3 * ( ( segments * 2 ) - 2 ) );
 
         Crystal c = new Crystal();
         c.radius = radius;
@@ -173,8 +179,6 @@ public class CommandCrystalInit : MonoBehaviour
 
 
 
-
-
         // 2 pass
 
         // get new points in mid sek direction on all sides
@@ -192,6 +196,7 @@ public class CommandCrystalInit : MonoBehaviour
         Vector2 sekAC = mAC + ( new Vector2( Vector3.Normalize(mAC - cP).x, Vector3.Normalize( mAC - cP ).y) * x);
         Vector2 sekBC = mBC + ( new Vector2( Vector3.Normalize(mBC - cP).x, Vector3.Normalize( mBC - cP ).y) * x);
 
+
         float[] pass2radii = new float[3];
         Vector2[] rotas = new Vector2[6];
         for ( int i = 0; i < 3; i++ )
@@ -200,8 +205,18 @@ public class CommandCrystalInit : MonoBehaviour
         }
         for ( int i = 0; i < 6; i++ )
         {
-            rotas[i] = new Vector2( Random.Range( -20, 20 ), Random.Range( -20, 20 ) );
+            rotas[i] = Vector2.zero;
         }
+
+        Vector2 red2 = new Vector2( sekAB.x - pass2radii[0] * .3f, sekAB.y - pass2radii[0] );
+        sekAB = new Vector2( sekAB.x * .85f, sekAB.y );
+        pass2radii[1] *= .5f;
+        sekAC = red2;
+
+        // rotation: all crystals slightly angled away from center on X & Z
+        rotas[0] = new Vector2( 0, Random.Range(0, -30 ));
+        rotas[1] = new Vector2( Random.Range(0, -30) , 0);
+        rotas[2] = new Vector2( Random.Range(0, 30) , 0);
 
 
         // DEBUG
@@ -211,8 +226,6 @@ public class CommandCrystalInit : MonoBehaviour
         Debug.DrawLine( mBC, sekBC, Color.yellow, 800f );
         Debug.DrawLine( mAB, sekAB, Color.grey, 800f );
         Debug.DrawLine( mAC, sekAC, Color.white, 800f );
-
-        // rotation: all crystals slightly angled away from center on X & Z
 
 
         // OUTPUT
@@ -229,6 +242,8 @@ public class CommandCrystalInit : MonoBehaviour
             new Vector3(0, .66f, 0) // green CA
         };
         return cl;
+
+        // TODO: Change Pass 2 Crystals to multiple set of Crystals & use addConfig
 
     }
 
@@ -253,8 +268,14 @@ public class CommandCrystalInit : MonoBehaviour
         verticesBuffer = new ComputeBuffer( vertTotal, sizeof( float ) * 3, ComputeBufferType.Default );
         uvsBuffer = new ComputeBuffer( vertTotal, sizeof( float ) * 2, ComputeBufferType.Default );
         crystalInfoBuffer = new ComputeBuffer( cluster.Length, Marshal.SizeOf( typeof( Crystal ) ), ComputeBufferType.Default );
+        //crystalInfoBufferGPU = new ComputeBuffer( cluster.Length, Marshal.SizeOf( typeof( Crystal ) ), ComputeBufferType.Default );
         indicesBuffer = new ComputeBuffer( indicesTotal, sizeof( uint ), ComputeBufferType.Default );
         vertOutputBuffer = new ComputeBuffer( indicesTotal, Marshal.SizeOf(typeof (Vert)), ComputeBufferType.Default );
+
+        RLSPBuffer = new ComputeBuffer( 6, sizeof( float ) * 4, ComputeBufferType.Default );
+        OffRotBuffer = new ComputeBuffer( 6, sizeof( float ) * 4, ComputeBufferType.Default );
+        VICountBuffer = new ComputeBuffer( 6, sizeof( uint ) * 2, ComputeBufferType.Default );
+
 
         // Set Mesh Config Data
         crystalInfoBuffer.SetData( cluster );
@@ -262,12 +283,20 @@ public class CommandCrystalInit : MonoBehaviour
         int kernelHandle = shader.FindKernel( "CSMain" );
 
         // RUN COMPUTE SHADER
+        Vector4 rl = new Vector4( runningConfig.ClusterRadius, runningConfig.MinLength, runningConfig.MaxLength, 0 );
+        Vector4 sp = new Vector4( runningConfig.MinSegments, runningConfig.MaxSegments, runningConfig.MinPointiness, runningConfig.MaxPointiness );
+
         shader.SetBuffer( kernelHandle, "VerticesBuffer", verticesBuffer );
         shader.SetBuffer( kernelHandle, "UvsBuffer", uvsBuffer );
         shader.SetBuffer( kernelHandle, "CrystalInfoBuffer", crystalInfoBuffer );
         shader.SetBuffer( kernelHandle, "IndicesBuffer", indicesBuffer );
         shader.SetBuffer( kernelHandle, "VertOutputBuffer", vertOutputBuffer );
-        shader.SetFloat( "_VertCount", indicesTotal );
+        shader.SetBuffer( kernelHandle, "VertOutputBuffer", vertOutputBuffer );
+        shader.SetVector( "_ClusterInfoSegRL", rl );
+        shader.SetVector( "_ClusterInfoSegSP", sp );
+        shader.SetBuffer( kernelHandle, "RLSP", RLSPBuffer );
+        shader.SetBuffer( kernelHandle, "OffRot", OffRotBuffer );
+        shader.SetBuffer( kernelHandle, "VICount", VICountBuffer );
 
         // DISPATCH
         shader.Dispatch( kernelHandle, 1, 1, 1 );

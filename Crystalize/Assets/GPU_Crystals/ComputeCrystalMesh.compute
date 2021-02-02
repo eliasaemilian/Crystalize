@@ -11,13 +11,20 @@ struct Crystal
     float radius;
     float length; // do random calcs on cpu
     float segments; // do random calcs on cpu
-    float pointiness;
-    float3 offset; 
+    float pointiness; // TODO: put these in float4
+    float2 offset; 
     int verticesCount;
     int indicesCount;
     float3 debugCol;
     float2 rot;
+    
+    //float4 radLengthSegPoint;
+    //float4 OffRot;
+    //uint2 vertIndiCount;
 };
+
+
+
 
 struct Vert
 {
@@ -27,10 +34,16 @@ struct Vert
     float3 debugCol;
 };
 
- 
-void RandomRange( float2 Seed, float Min, float Max, out float Out )
+float Deg2Rad( float deg )
 {
-    float randomno = frac( sin( dot( Seed, float2( 12.9898, 78.233 ) ) ) * 43758.5453 );
+    float pi = PI;
+    return float( deg * pi / 180.0 );
+}
+ 
+void RandomRange( float Min, float Max, out float Out )
+{
+    float2 seed = float2( 2.12345, 4.12345 );
+    float randomno = frac( sin( dot( seed, float2( 12.9898, 78.233 ) ) ) * 43758.5453 );
     Out = lerp( Min, Max, randomno );
 }
 
@@ -81,6 +94,137 @@ RWStructuredBuffer<Vert> VertOutputBuffer;
 
 StructuredBuffer<Crystal> CrystalInfoBuffer;
 
+float4 _ClusterInfoSegRL; // x = cluster radius, yz = min max length, w = 0
+float4 _ClusterInfoSegSP; // xy min max segments, zw = min max pointines
+
+RWBuffer<float4> RLSP; // x = radius, y = length, z = segments, w = pointiness
+RWBuffer<float4> OffRot; // xy = offset, zw = rotation
+RWBuffer<uint2> VICount; // x = vert count, y = indices count
+
+
+
+Crystal GenerateCrystalInfo( float r, float2 pos, float3 debugCol, float2 rot )
+{
+    Crystal c;
+    RandomRange( _ClusterInfoSegSP.x, _ClusterInfoSegSP.y, c.segments );
+    RandomRange( _ClusterInfoSegRL.y, _ClusterInfoSegRL.z, c.length );
+    RandomRange( _ClusterInfoSegSP.z, _ClusterInfoSegSP.w, c.pointiness );
+    
+    c.verticesCount = c.length * c.segments * 2;
+    c.indicesCount = ( 6 * ( c.length - 1 ) ) + ( ( c.length - 1 ) ) * ( 3 * ( ( c.segments * 2 ) - 2 ) );
+    
+    c.radius = r;
+    c.offset = pos;
+    c.rot = rot;
+    c.debugCol = debugCol;
+    
+    return c;
+}
+
+void GenerateClusterInstructions()
+{
+    float radii[6];
+    float2 offsets[6];
+    float3 debugCol[6];
+    float2 rotas[6];
+    
+    // PASS 1
+    float2 A = float2( _ClusterInfoSegRL.x * .5, 0 );
+    float Ar, Br, Cr;
+    RandomRange( A.x * .75, A.x, Ar);
+    RandomRange( Ar, Ar * 1.25 , A.y);
+    
+    // get next 2 pos in ~60° triangle shape from 1st crystal with dist to each MAXr * 2
+    float2 B;
+    RandomRange( Ar * .75, Ar, B.x );
+    RandomRange( 0, A.x * .5, B.y );
+    RandomRange( B.x * .85, B.x, Br );
+    
+    float side = distance( A, B ) * ( sin( Deg2Rad( 60 ) ) / sin( Deg2Rad( 60 ) ) );
+    float2 C;
+    C.x = B.x * 2 + ( side * cos( Deg2Rad( 60 ) ) );
+    C.y = B.y * 2 + ( side * sin( Deg2Rad( 60 ) ) );
+    float rt;
+    RandomRange( A.x * .5, side * .85, rt );
+    Cr = clamp( rt, A.x * .5, Ar );
+    
+    // PASS 2
+    float2 mAB = float2( A.x + ( B.x - A.x ) * .5, A.y + ( B.y - A.y ) * .5 );
+    float2 mBC = float2( B.x + ( C.x - B.x ) * .5, B.y + ( C.y - B.y ) * .5 );
+    float2 mAC = float2( A.x + ( C.x - A.x ) * .5, A.y + ( C.y - A.y ) * .5 );
+    
+    float2 cP = float2( ( A.x + B.x + C.x ) / 3, ( A.y + B.y + C.y ) / 3 );
+
+    float2 sekAB = mAB + normalize( mAB - cP );
+    float2 sekBC = mBC + normalize( mBC - cP );
+    float2 sekAC = mAC + normalize( mAC - cP );
+
+    float pass2radii[3];
+    for ( uint i = 0; i < 3; i++ ) RandomRange(Ar * .3f, Ar * .6f, pass2radii[i] );
+
+    //float2 A2 = float2( sekAB.x - pass2radii[0] * .3, sekAB.y - pass2radii[0] );
+    //sekAB.x *= .85;
+    
+    // rotas C1-C3
+    float rotA, rotB, rotC;
+    RandomRange( 0, -30, rotA );
+    RandomRange( 0, -30, rotB );
+    RandomRange( 0, 30, rotC );
+    rotas[0] = float2( 0, rotA );
+    rotas[1] = float2( rotB, 0 );
+    rotas[2] = float2( 0, rotC );
+    rotas[3] = float2( 0, 0 );
+    rotas[4] = float2( 0, 0 );
+    rotas[5] = float2( 0, 0 );
+    
+    // 
+    radii[0] = Ar;
+    radii[1] = Br;
+    radii[2] = Cr;
+    radii[3] = pass2radii[0];
+    radii[4] = pass2radii[1];
+    radii[5] = pass2radii[2];
+    
+    //
+    offsets[0] = A;
+    offsets[1] = B;
+    offsets[2] = C;
+    offsets[3] = sekAB;
+    offsets[4] = sekBC;
+    offsets[5] = sekAC;
+    
+    
+    // DEBUG COLORS
+    debugCol[0] = float3( 1, 0, 0 );
+    debugCol[1] = float3( 0, 0, 1 );
+    debugCol[2] = float3( 0, 1, 0 );
+    debugCol[3] = float3( .66, 0, 0 );
+    debugCol[4] = float3( 0, 0, .66 );
+    debugCol[5] = float3( 0, .66, 0 );
+    
+    // TODO GEN CLUSTER
+    // GET TOTAL COUNT, CURRENTLY 6
+    uint count = 6;
+    uint vertTotal, indicesTotal;
+    
+    for ( i = 0; i < 6; i++ )
+    {
+        // TODO: MAKE CRYSTAL STRUCT OBSOLETE
+        // TODO: feed Seed via CPU that decide how many crystals a cluster generates [or different compute shaders for different structures, common cginc]
+        
+        // TODO: Seed MUST define Vert/Indi Total Count so Buffers can be init
+        
+        Crystal c = GenerateCrystalInfo( radii[i], offsets[i], debugCol[i], rotas[i] );
+        vertTotal += c.verticesCount;
+        indicesTotal += c.indicesCount;
+        
+        RLSP[i] = float4( c.radius, c.length, c.segments, c.pointiness );
+        OffRot[i] = float4( c.offset, c.rot );
+        VICount[i] = uint2( c.verticesCount, c.indicesCount );
+    }  
+
+}
+
 void GenerateCrystal(Crystal c, int offsetCount, int offsetVerts)
 {
     // compute vertices
@@ -111,8 +255,8 @@ void GenerateCrystal(Crystal c, int offsetCount, int offsetVerts)
             vertPos = RotateAroundZInDegrees( vertPos, c.rot.y );
 
             // set buffers
-            VerticesBuffer[offsetVerts + ( ( i * ( uint ) c.segments + j ) * 2 ) + 0] = c.offset + vertPos;
-            VerticesBuffer[offsetVerts + ( ( i * ( uint ) c.segments + j ) * 2 ) + 1] = c. offset + vertPos;
+            VerticesBuffer[offsetVerts + ( ( i * ( uint ) c.segments + j ) * 2 ) + 0] = float3( c.offset.x, 0, c.offset.y ) + vertPos;
+            VerticesBuffer[offsetVerts + ( ( i * ( uint ) c.segments + j ) * 2 ) + 1] = float3( c.offset.x, 0, c.offset.y ) + vertPos;
             
             float v = vertPos.y / ( c.length + c.pointiness );
             float u = j / c.segments;
@@ -159,11 +303,86 @@ void GenerateCrystal(Crystal c, int offsetCount, int offsetVerts)
     
 }
 
+void GenerateCrystalGPU( int c, int offsetCount, int offsetVerts )
+{
+    // compute vertices
+    for ( uint i = 0; i < ( uint ) RLSP[c].y; i++ )
+    {
+        for ( uint j = 0; j < ( uint ) RLSP[c].z; j++ )
+        {
+            float3 vertPos = float3( 0, 0, 0 );
+
+            if ( i == ( uint ) RLSP[c].y - 1 ) // TODO: get rid of branching
+            {
+                vertPos = float3( 0, 0, 0 );
+                vertPos.y += i + RLSP[c].w;
+            }
+            else
+            {
+                float t = saturate( j / RLSP[c].z );
+                float angRad = t * TAU;
+                float2 dir = float2( cos( angRad ), sin( angRad ) );
+
+                vertPos.xz = dir * RLSP[c].x;
+                vertPos.y += i;
+            
+            }
+            
+            // apply rotation
+            vertPos = RotateAroundXInDegrees( vertPos, OffRot[c].z );
+            vertPos = RotateAroundZInDegrees( vertPos, OffRot[c].w );
+
+            // set buffers
+            VerticesBuffer[offsetVerts + ( ( i * ( uint ) RLSP[c].z + j ) * 2 ) + 0] = float3( OffRot[c].x, 0, OffRot[c].y ) + vertPos;
+            VerticesBuffer[offsetVerts + ( ( i * ( uint ) RLSP[c].z + j ) * 2 ) + 1] = float3( OffRot[c].x, 0, OffRot[c].y ) + vertPos;
+            
+            float v = vertPos.y / ( RLSP[c].y + RLSP[c].z );
+            float u = j / RLSP[c].z;
+            
+            UvsBuffer[offsetVerts + ( ( i * ( uint ) RLSP[c].z + j ) * 2 ) + 0] = float2( u, v );
+            UvsBuffer[offsetVerts + ( ( i * ( uint ) RLSP[c].z + j ) * 2 ) + 1] = float2( u, v );
+        }
+        
+    }
+
+    // compute indices
+    for ( i = 0; i < ( uint ) RLSP[c].y - 1; i++ )
+    {
+        for ( uint j = 0; j < ( ( uint ) RLSP[c].z * 2 ) - 2; j += 2 )
+        {
+            uint root = offsetVerts + ( i * ( ( RLSP[c].z * 2 ) ) + j );
+            uint rootNext = offsetVerts + ( i * ( ( RLSP[c].z * 2 ) ) ) + j + ( RLSP[c].z * 2 );
+
+            uint count = offsetCount + ( ( 6 * i ) + ( i * ( uint ) ( ( RLSP[c].z * 2 ) - 2 ) + j ) * 3 );
+            
+            IndicesBuffer[count + 0] = rootNext;
+            IndicesBuffer[count + 1] = root + 2;
+            IndicesBuffer[count + 2] = root;
+            
+            IndicesBuffer[count + 3] = rootNext;
+            IndicesBuffer[count + 4] = rootNext + 2;
+            IndicesBuffer[count + 5] = root + 2;
+        }
+
+        uint count = offsetCount + ( 6 * i ) + ( i * ( uint ) ( ( RLSP[c].z * 2 ) - 2 ) + ( ( RLSP[c].z * 2 ) - 2 ) ) * 3;
+        
+        IndicesBuffer[count + 0] = offsetVerts + ( ( i + 1 ) * ( RLSP[c].z * 2 ) ) + ( RLSP[c].z * 2 ) - 2;
+        IndicesBuffer[count + 1] = offsetVerts + ( i * ( RLSP[c].z * 2 ) ) + ( RLSP[c].z * 2 );
+        IndicesBuffer[count + 2] = offsetVerts + ( i * ( RLSP[c].z * 2 ) );
+        
+        IndicesBuffer[count + 3] = offsetVerts + ( ( i + 1 ) * ( RLSP[c].z * 2 ) ) + ( RLSP[c].z * 2 ) - 2;
+        IndicesBuffer[count + 4] = offsetVerts + ( i * ( RLSP[c].z * 2 ) );
+        IndicesBuffer[count + 5] = offsetVerts + ( i * ( RLSP[c].z * 2 ) ) + ( RLSP[c].z * 2 ) - 2;
+              
+    }
+        
+}
 
 
 [numthreads(1,1,1)]
 void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
 {
+    GenerateClusterInstructions();
     //Crystal c = CrystalInfoBuffer[id.x];
     
     //if ( index > ( uint ) _VertCount )
@@ -172,22 +391,43 @@ void CSMain( uint3 id : SV_DispatchThreadID, uint index : SV_GroupIndex)
     int offsetVerts = 0;
     uint crystalCount = 0;
     uint stride = 0;
+    
     CrystalInfoBuffer.GetDimensions( crystalCount, stride);
-    // for like id.x < index generate crystal feed it id offset idk figure it out cunt <- bitch I did
+    
     for ( uint i = 0; i < crystalCount; ++i )
     {
-        GenerateCrystal( CrystalInfoBuffer[i], offsetCount, offsetVerts);
+        GenerateCrystalGPU( i, offsetCount, offsetVerts);
         
         for ( uint k = ( uint ) offsetCount; k < offsetCount + ( uint ) CrystalInfoBuffer[i].indicesCount; ++k )
         {
             VertOutputBuffer[k].pos = VerticesBuffer[IndicesBuffer[k]];
             VertOutputBuffer[k].uv = UvsBuffer[IndicesBuffer[k]];
+            //VertOutputBuffer[k].debugCol = CrystalInfoBuffer[i].debugCol;
             VertOutputBuffer[k].debugCol = CrystalInfoBuffer[i].debugCol;
         }
 
-        offsetCount += CrystalInfoBuffer[i].indicesCount;
-        offsetVerts += CrystalInfoBuffer[i].verticesCount;
+        //offsetCount += CrystalInfoBuffer[i].indicesCount;
+        //offsetVerts += CrystalInfoBuffer[i].verticesCount;
+        
+        offsetCount += VICount[i].y;
+        offsetVerts += VICount[i].x;
     }
     
+    
+    //for ( uint i = 0; i < crystalCount; ++i )
+    //{
+    //    GenerateCrystal( CrystalInfoBuffer[i], offsetCount, offsetVerts );
+        
+    //    for ( uint k = ( uint ) offsetCount; k < offsetCount + ( uint ) CrystalInfoBuffer[i].indicesCount; ++k )
+    //    {
+    //        VertOutputBuffer[k].pos = VerticesBuffer[IndicesBuffer[k]];
+    //        VertOutputBuffer[k].uv = UvsBuffer[IndicesBuffer[k]];
+    //        VertOutputBuffer[k].debugCol = CrystalInfoBuffer[i].debugCol;
+    //    }
+
+    //    offsetCount += CrystalInfoBuffer[i].indicesCount;
+    //    offsetVerts += CrystalInfoBuffer[i].verticesCount;
+        
+    //}
 
 }

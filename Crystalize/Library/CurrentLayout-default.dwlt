@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1521.6
     height: 805.60004
   m_ShowMode: 4
-  m_Title: Scene
+  m_Title: Console
   m_RootView: {fileID: 12}
   m_MinSize: {x: 875, y: 521}
   m_MaxSize: {x: 10000, y: 10000}
@@ -97,7 +97,7 @@ MonoBehaviour:
     y: 30
     width: 1522
     height: 756
-  m_MinSize: {x: 1389, y: 471}
+  m_MinSize: {x: 911, y: 471}
   m_MaxSize: {x: 22006, y: 14021}
   vertical: 0
   controlID: 284
@@ -151,7 +151,7 @@ MonoBehaviour:
   m_MinSize: {x: 232, y: 471}
   m_MaxSize: {x: 10002, y: 14021}
   vertical: 1
-  controlID: 222
+  controlID: 241
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -162,7 +162,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: ProfilerWindow
+  m_Name: ConsoleWindow
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
@@ -171,15 +171,15 @@ MonoBehaviour:
     y: 462
     width: 881
     height: 294
-  m_MinSize: {x: 880, y: 216}
-  m_MaxSize: {x: 4000, y: 4000}
-  m_ActualView: {fileID: 18}
+  m_MinSize: {x: 101, y: 121}
+  m_MaxSize: {x: 4001, y: 4021}
+  m_ActualView: {fileID: 25}
   m_Panes:
   - {fileID: 25}
   - {fileID: 18}
   - {fileID: 16}
-  m_Selected: 1
-  m_LastSelected: 0
+  m_Selected: 0
+  m_LastSelected: 1
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -201,7 +201,7 @@ MonoBehaviour:
     y: 0
     width: 881
     height: 756
-  m_MinSize: {x: 881, y: 458}
+  m_MinSize: {x: 403, y: 342}
   m_MaxSize: {x: 8003, y: 8042}
   vertical: 1
   controlID: 97
@@ -304,7 +304,7 @@ MonoBehaviour:
     y: 0
     width: 1522
     height: 806
-  m_MinSize: {x: 875, y: 300}
+  m_MinSize: {x: 875, y: 521}
   m_MaxSize: {x: 10000, y: 10000}
   m_UseTopView: 1
   m_TopViewHeight: 30
@@ -1213,7 +1213,7 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 1
+    m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: c6230000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -1373,9 +1373,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 36.232048, y: -75.65233, z: 47.503708}
+    m_Target: {x: 9.927586, y: 7.6968746, z: 25.261377}
     speed: 2
-    m_Value: {x: 36.232048, y: -75.65233, z: 47.503708}
+    m_Value: {x: 9.927586, y: 7.6968746, z: 25.261377}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1422,17 +1422,17 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.4821107, y: 0.3856084, z: -0.24977463, w: 0.74610996}
+    m_Target: {x: 0.6828125, y: 0.041715965, z: -0.039313927, w: 0.72855324}
     speed: 2
-    m_Value: {x: 0.48168927, y: 0.38669002, z: -0.25047347, w: 0.7454592}
+    m_Value: {x: 0.6827072, y: 0.04170953, z: -0.039307863, w: 0.7284409}
   m_Size:
-    m_Target: 54.5896
+    m_Target: 14.126618
     speed: 2
-    m_Value: 54.5896
+    m_Value: 14.126618
   m_Ortho:
-    m_Target: 0
+    m_Target: 1
     speed: 2
-    m_Value: 0
+    m_Value: 1
   m_CameraSettings:
     m_Speed: 2
     m_SpeedNormalized: 1
@@ -1566,7 +1566,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 7.2000003
     y: 543.2
-    width: 778
+    width: 880
     height: 273
   m_ViewDataDictionary: {fileID: 0}
 --- !u!114 &26

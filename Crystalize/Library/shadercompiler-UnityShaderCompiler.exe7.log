@@ -1,4 +1,17 @@
 Base path: 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data', plugins path 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data/PlaybackEngines'
 Cmd: initializeCompiler
 Cmd: compileComputeKernel
-  api=4 insize=5667 outsize=4064 ok=1
+  error: 2 plat 4 at ComputeCrystalMesh.compute(136): variable 'Br' used without having been completely initialized
+  api=4 insize=10005 outsize=0 ok=0
+Cmd: compileComputeKernel
+  error: 2 plat 21 at (0): Unknown parameter type (0) for config
+  error: 1 plat 4 at ComputeCrystalMesh.compute(124): implicit truncation of vector type
+  api=4 insize=10536 outsize=0 ok=0
+Cmd: compileComputeKernel
+  error: 2 plat 4 at ComputeCrystalMesh.compute(109): undeclared identifier 'config'
+  api=4 insize=10331 outsize=0 ok=0
+Cmd: compileComputeKernel
+  api=4 insize=13607 outsize=6556 ok=1
+Unhandled exception: Protocol error - unexpected end of data (did the Editor crash?)
+
+Quitting shader compiler process

@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1521.6
     height: 805.60004
   m_ShowMode: 4
-  m_Title: Console
+  m_Title: Hierarchy
   m_RootView: {fileID: 12}
   m_MinSize: {x: 875, y: 521}
   m_MaxSize: {x: 10000, y: 10000}
@@ -97,10 +97,10 @@ MonoBehaviour:
     y: 30
     width: 1522
     height: 756
-  m_MinSize: {x: 911, y: 471}
+  m_MinSize: {x: 1389, y: 471}
   m_MaxSize: {x: 22006, y: 14021}
   vertical: 0
-  controlID: 284
+  controlID: 132
 --- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -151,7 +151,7 @@ MonoBehaviour:
   m_MinSize: {x: 232, y: 471}
   m_MaxSize: {x: 10002, y: 14021}
   vertical: 1
-  controlID: 241
+  controlID: 133
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -162,7 +162,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: ConsoleWindow
+  m_Name: ProfilerWindow
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
@@ -171,15 +171,15 @@ MonoBehaviour:
     y: 462
     width: 881
     height: 294
-  m_MinSize: {x: 101, y: 121}
-  m_MaxSize: {x: 4001, y: 4021}
-  m_ActualView: {fileID: 25}
+  m_MinSize: {x: 880, y: 216}
+  m_MaxSize: {x: 4000, y: 4000}
+  m_ActualView: {fileID: 18}
   m_Panes:
   - {fileID: 25}
   - {fileID: 18}
   - {fileID: 16}
-  m_Selected: 0
-  m_LastSelected: 1
+  m_Selected: 1
+  m_LastSelected: 0
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -201,10 +201,10 @@ MonoBehaviour:
     y: 0
     width: 881
     height: 756
-  m_MinSize: {x: 403, y: 342}
+  m_MinSize: {x: 881, y: 458}
   m_MaxSize: {x: 8003, y: 8042}
   vertical: 1
-  controlID: 97
+  controlID: 71
 --- !u!114 &9
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -254,7 +254,7 @@ MonoBehaviour:
   m_MinSize: {x: 276, y: 71}
   m_MaxSize: {x: 4001, y: 4021}
   vertical: 0
-  controlID: 285
+  controlID: 196
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -304,7 +304,7 @@ MonoBehaviour:
     y: 0
     width: 1522
     height: 806
-  m_MinSize: {x: 875, y: 521}
+  m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
   m_UseTopView: 1
   m_TopViewHeight: 30
@@ -500,7 +500,7 @@ MonoBehaviour:
     height: 273
   m_ViewDataDictionary: {fileID: 0}
   m_VertSplit:
-    ID: 115
+    ID: 3335
     splitterInitialOffset: 272
     currentActiveSplitter: -1
     realSizes:
@@ -1213,7 +1213,7 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 0
+    m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c6230000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -1310,8 +1310,8 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 
-      m_LastClickedID: 0
+      m_SelectedIDs: 88370000
+      m_LastClickedID: 14216
       m_ExpandedIDs: 60fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
@@ -1373,9 +1373,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 9.927586, y: 7.6968746, z: 25.261377}
+    m_Target: {x: 3.6212797, y: 2.2408032, z: 34.31392}
     speed: 2
-    m_Value: {x: 9.927586, y: 7.6968746, z: 25.261377}
+    m_Value: {x: 3.6212797, y: 2.2408032, z: 34.31392}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1422,13 +1422,13 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.6828125, y: 0.041715965, z: -0.039313927, w: 0.72855324}
+    m_Target: {x: 0.26909688, y: -0.6149013, z: 0.23393537, w: 0.7036878}
     speed: 2
-    m_Value: {x: 0.6827072, y: 0.04170953, z: -0.039307863, w: 0.7284409}
+    m_Value: {x: 0.26904052, y: -0.61477256, z: 0.23388638, w: 0.70354044}
   m_Size:
-    m_Target: 14.126618
+    m_Target: 40.335342
     speed: 2
-    m_Value: 14.126618
+    m_Value: 40.335342
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -1446,8 +1446,8 @@ MonoBehaviour:
     m_FarClip: 10000
     m_DynamicClip: 1
     m_OcclusionCulling: 0
-  m_LastSceneViewRotation: {x: 0.004425741, y: 0.9950423, z: -0.0628194, w: 0.07810158}
-  m_LastSceneViewOrtho: 0
+  m_LastSceneViewRotation: {x: -0.005930615, y: 0.95115066, z: -0.3086771, w: -0.017998317}
+  m_LastSceneViewOrtho: 1
   m_ReplacementShader: {fileID: 0}
   m_ReplacementString: 
   m_SceneVisActive: 1

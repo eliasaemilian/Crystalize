@@ -1,22 +1,9 @@
 Base path: 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data', plugins path 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data/PlaybackEngines'
 Cmd: initializeCompiler
 Cmd: compileComputeKernel
-  error: 2 plat 4 at ComputeCrystalMesh.compute(34): 'Cluster::radii': array dimensions of struct/class members must be explicit
-  api=4 insize=10053 outsize=0 ok=0
+  error: 2 plat 4 at ComputeCrystalMesh.compute(204): cannot implicitly convert from 'float2' to 'float3'
+  api=4 insize=9844 outsize=0 ok=0
 Cmd: compileComputeKernel
-  error: 2 plat 4 at ComputeCrystalMesh.compute(35): 'Cluster::offsets': array dimensions of struct/class members must be explicit
-  api=4 insize=10054 outsize=0 ok=0
+  api=4 insize=9913 outsize=7005 ok=1
 Cmd: compileComputeKernel
-  error: 1 plat 4 at ComputeCrystalMesh.compute(145): implicit truncation of vector type
-  error: 2 plat 4 at ComputeCrystalMesh.compute(199): cannot implicitly convert from 'const float3' to 'float3[6]'
-  error: 1 plat 4 at ComputeCrystalMesh.compute(200): comma expression used where a vector constructor may have been intended
-  api=4 insize=10079 outsize=0 ok=0
-Cmd: compileComputeKernel
-  error: 2 plat 21 at (0): Unknown parameter type (0) for config
-  error: 1 plat 4 at ComputeCrystalMesh.compute(121): implicit truncation of vector type
-  api=4 insize=10462 outsize=0 ok=0
-Cmd: compileComputeKernel
-  api=4 insize=10389 outsize=6556 ok=1
-Unhandled exception: Protocol error - unexpected end of data (did the Editor crash?)
-
-Quitting shader compiler process
+  api=4 insize=9796 outsize=7057 ok=1

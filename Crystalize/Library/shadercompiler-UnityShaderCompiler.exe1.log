@@ -1,4 +1,15 @@
 Base path: 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data', plugins path 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data/PlaybackEngines'
 Cmd: initializeCompiler
 Cmd: compileComputeKernel
-  api=4 insize=14707 outsize=7311 ok=1
+  api=4 insize=9569 outsize=6225 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=9569 outsize=5401 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=9842 outsize=6720 ok=1
+Cmd: compileComputeKernel
+  api=4 insize=9916 outsize=6717 ok=1
+Cmd: compileComputeKernel
+  error: 2 plat 4 at ComputeCrystalMesh.compute(117): cannot use casts on l-values
+  api=4 insize=9921 outsize=0 ok=0
+Cmd: compileComputeKernel
+  api=4 insize=9929 outsize=7057 ok=1

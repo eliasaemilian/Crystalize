@@ -1,21 +1,4 @@
 Base path: 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data', plugins path 'C:/Program Files/Unity/Hub/Editor/2020.1.7f1/Editor/Data/PlaybackEngines'
 Cmd: initializeCompiler
 Cmd: compileComputeKernel
-  error: 2 plat 4 at ComputeCrystalMesh.compute(122): cannot implicitly convert from 'float2' to 'float3'
-  api=4 insize=10057 outsize=0 ok=0
-Cmd: compileComputeKernel
-  error: 2 plat 4 at ComputeCrystalMesh.compute(123): 'radii': implicit array missing initial value
-  api=4 insize=9937 outsize=0 ok=0
-Cmd: compileComputeKernel
-  api=4 insize=9969 outsize=4300 ok=1
-Cmd: compileComputeKernel
-  error: 2 plat 21 at (0): Unknown parameter type (0) for config
-  api=4 insize=10103 outsize=0 ok=0
-Cmd: compileComputeKernel
-  error: 2 plat 21 at (0): Unknown parameter type (0) for config
-  api=4 insize=10105 outsize=0 ok=0
-Cmd: compileComputeKernel
-  api=4 insize=13792 outsize=7311 ok=1
-Unhandled exception: Protocol error - unexpected end of data (did the Editor crash?)
-
-Quitting shader compiler process
+  api=4 insize=9844 outsize=6504 ok=1

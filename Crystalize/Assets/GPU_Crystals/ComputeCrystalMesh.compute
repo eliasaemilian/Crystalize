@@ -84,17 +84,12 @@ float3 RotateAroundZInDegrees( float3 vertex, float degrees )
 }
 
 
-
-
 RWStructuredBuffer<float3> VerticesBuffer;
 RWStructuredBuffer<float2> UvsBuffer;
 RWStructuredBuffer<uint> IndicesBuffer;
 RWStructuredBuffer<Vert> VertOutputBuffer;
-
-
 RWStructuredBuffer<Crystal> CrystalInfoBuffer;
 RWStructuredBuffer<DebugCluster> DebugBuffer;
-
 
 float _ClusterRadius;
 

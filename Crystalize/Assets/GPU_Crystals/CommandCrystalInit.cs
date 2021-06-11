@@ -101,7 +101,7 @@ public class CommandCrystalInit : MonoBehaviour
     }
 
 
-
+    CommandBuffer cmd;
     private void OnWillRenderObject()
     {
         bool isActive = gameObject.activeInHierarchy && enabled;
@@ -115,18 +115,17 @@ public class CommandCrystalInit : MonoBehaviour
         if ( !cam ) return;
 
         // clear cmd buffer
-        CommandBuffer cmd = null;
+      //  cmd.Clear();
 
         // if cmd buffer is already registered on camera, return
         if ( _cams.ContainsKey( cam ) ) return;
 
-        cmd = new CommandBuffer();
+        CommandBuffer cmd = new CommandBuffer();
         cmd.name = "Buffer Test";
         _mat.SetPass( 0 );
 
         _cams[cam] = cmd;
         cmd.DrawProcedural( transform.localToWorldMatrix, _mat, -1, MeshTopology.Triangles, indicesTotal, 1 );
-        //    cmd.DispatchCompute( shader, shader.FindKernel( "CSMain" ), 1, 1, 1 );
 
         cam.AddCommandBuffer( _cameraEvent, cmd );
 
